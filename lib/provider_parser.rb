@@ -36,6 +36,7 @@ class ProviderParser
   end
 
   def npi_match(source, match)
+    return false if match['npi'].length < 1
     source['doctor']['npi'] == match['npi']
   end
 end
