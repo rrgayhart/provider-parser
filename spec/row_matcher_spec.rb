@@ -1,6 +1,8 @@
-require './lib/calculate_likely_match'
+require './lib/row_matcher'
+
 
 describe 'calculate_likely_match' do
+  include RowMatcher
   let(:headers){ ["first_name",
                 "last_name",
                 "npi",
@@ -55,14 +57,12 @@ let(:source_record){ { "doctor"=>
     context 'with first and last name match' do
       before(:each) do
         fields[0] = source_record['doctor']['first_name']
-        fields[1] = source_record['doctor']['last_name']
+        fields[1] = source_record['doctor']['last_name'].upcase
       end
 
-      context 'with no other matching fields' do
-        it 'returns correctly formatted data registering as a likely match' do
-          expect(action['fields']).to eq(['first_name', 'last_name'])
-          expect(action['source']).to eq(source_record)
-        end
+      it 'returns correctly formatted data registering as a likely match' do
+        expect(action['fields']).to eq(['first_name', 'last_name'])
+        expect(action['source']).to eq(source_record)
       end
 
       context 'with other matching fields' do
