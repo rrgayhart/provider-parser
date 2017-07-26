@@ -11,6 +11,10 @@
 
 - NPI is unique in the source data, therefor an NPI level match ends the searching process for that record.
 
+#### Further Optimizations
+
+- Since most records match on NPI - may make sense to sort the source data by NPI and do an initial binary search prior to searching for matches on additional fields
+
 ## Running the Script
 
 Install dependencies: 
