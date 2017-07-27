@@ -1,3 +1,4 @@
+require 'csv'
 require './lib/row_matcher'
 
 describe RowMatcher do 
@@ -136,6 +137,19 @@ describe RowMatcher do
 
         context 'with no other fields matching' do
           it 'returns false' do
+            expect(action).to eq(false)
+          end
+        end
+
+        context 'with empty strings' do
+          before(:each) do
+            fields[0] = ""
+            source_record['doctor']['first_name'] = ""
+            fields[1] = ""
+            source_record['doctor']['last_name'] = ""
+          end
+
+          it 'does not indicate a likely match' do
             expect(action).to eq(false)
           end
         end

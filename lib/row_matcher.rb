@@ -31,6 +31,7 @@ module RowMatcher
   end
 
   def loose_match(field1, field2)
+    return false if field1 === ''
     field1.downcase === field2.downcase
   end
 
