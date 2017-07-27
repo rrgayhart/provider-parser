@@ -63,6 +63,7 @@ describe RowMatcher do
       it 'returns correctly formatted data registering a direct match' do
         expect(action['fields']).to eq(['npi'])
         expect(action['source']).to eq(source_record)
+        expect(action['match']).to eq(row.to_hash)
       end
 
       context 'with multiple matching fields' do
@@ -107,6 +108,7 @@ describe RowMatcher do
       it 'returns correctly formatted data registering as a likely match' do
         expect(action['fields']).to eq(['first_name', 'last_name'])
         expect(action['source']).to eq(source_record)
+        expect(action['match']).to eq(row.to_hash)
       end
 
       context 'with other matching fields' do
@@ -114,9 +116,8 @@ describe RowMatcher do
           fields[3] = source_record['practices'].first['street']
         end
 
-        it 'returns all matching fields and source' do
+        it 'returns all matching fields' do
           expect(action['fields']).to eq(['first_name', 'last_name', 'street'])
-          expect(action['source']).to eq(source_record)
         end
       end
     end
@@ -134,6 +135,7 @@ describe RowMatcher do
         it 'returns data indicating a likely match' do
           expect(action['fields']).to eq(['first_name', 'street'])
           expect(action['source']).to eq(source_record)
+          expect(action['match']).to eq(row.to_hash)
         end
       end
 

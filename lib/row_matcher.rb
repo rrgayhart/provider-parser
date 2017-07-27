@@ -1,7 +1,7 @@
 module RowMatcher
   def calculate_direct_match(match_row, source)
     is_npi_match = loose_match(match_row['npi'], source['doctor']['npi'])
-    is_npi_match ? format_match_data(['npi'], source) : false
+    is_npi_match ? format_match_data(['npi'], match_row, source) : false
   end
 
   def calculate_likely_match(match_row, source)
@@ -10,11 +10,12 @@ module RowMatcher
     provider_matches = pull_provider_matches(source, match_row)
     return false unless is_likely_match(name_matches, provider_matches)
     all_matches = name_matches + provider_matches
-    format_match_data(all_matches, source)
+    format_match_data(all_matches, match_row, source)
   end
 
-  def format_match_data(matching_headers, source)
-    { 'fields' => matching_headers,
+  def format_match_data(headers, match, source)
+    { 'fields' => headers,
+      'match' => match.to_hash,
       'source' => source }
   end
 
