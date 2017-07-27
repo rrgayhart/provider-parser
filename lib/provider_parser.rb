@@ -31,10 +31,9 @@ class ProviderParser
     source_data.each do |record|
       npi_match_data = calculate_direct_match(row, record)
       return store_direct_match(row, npi_match_data) if npi_match_data
-      possible_match_data = calculate_likely_match(row, record)
-      match_data['likely_matches'].push(possible_match_data) if possible_match_data
+      update_likely_matches(match_data, row, record)
     end
-    match_data['likely_matches'].empty? ? store_unmatched(row) : store_possible_matches(match_data)
+    store_row(match_data, row)
   end
 
   def base_match_data(row)
@@ -51,11 +50,16 @@ class ProviderParser
     direct_matches.push(match_record)
   end
 
-  def store_possible_matches(data)
-    possible_matches.push(data)
+  def store_row(match_data, row)
+    if match_data['likely_matches'].empty? 
+      unmatched.push(row)
+    else
+      possible_matches.push(match_data)
+    end
   end
 
-  def store_unmatched(row)
-    unmatched.push(row)
+  def update_likely_matches(match_data, row, record)
+    new_data = calculate_likely_match(row, record)
+    match_data['likely_matches'].push(new_data) if new_data
   end
 end
