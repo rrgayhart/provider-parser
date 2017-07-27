@@ -1,15 +1,17 @@
 require_relative './parse_json'
+require_relative './row_matcher'
 require 'pathname'
 require 'csv'
 
 class ProviderParser
+  include RowMatcher
   attr_reader :source_data
-  attr_accessor :total_records_checked, :matched, :possible_matches, :unmatched
+  attr_accessor :total_records_checked, :direct_matches, :possible_matches, :unmatched
 
   def initialize(source_path='data/source_data.json')
     @source_data = parse_json(source_path)
     @total_records_checked = 0
-    @matched = []
+    @direct_matches = []
     @possible_matches = []
     @unmatched = []
   end
@@ -25,43 +27,35 @@ class ProviderParser
   private
 
   def populate_match_instances(row)
-    match_data = {
-      'match' => row.to_hash
-    }
+    match_data = base_match_data(row)
     source_data.each do |record|
-      return process_npi_match(record, row) if npi_match(record, row)
-      fields = collect_matching_fields(record, row)
-      if (fields.length > 0)
-        process_match_by(fields, match_data, record)
-      end
+      npi_match_data = calculate_direct_match(row, record)
+      return store_direct_match(row, npi_match_data) if npi_match_data
+      possible_match_data = calculate_likely_match(row, record)
+      match_data['likely_matches'].push(possible_match_data) if possible_match_data
     end
-    match_data['sources'] ? possible_matches.push(match_data) : unmatched.push(match_data)
+    match_data['likely_matches'].empty? ? store_unmatched(row) : store_possible_matches(match_data)
   end
 
-  def collect_matching_fields(source, match)
-    fields = []
-    fields.push('last_name') if source['doctor']['last_name'] == match['last_name']
-    fields.push('first_name') if source['doctor']['first_name'] == match['first_name']
-    fields
-  end
-
-  def process_match_by(fields, match_data, record)
-    source_npi = record['doctor']['npi']
-    sources_match_data = match_data['sources'] ||= {}
-    source_match_data = match_data['sources'][source_npi] ||= {'matching_fields' => fields}
-    source_match_data['original'] ||= record
-  end
-
-  def process_npi_match(source, match)
-    match_data = {
-      'source' => source,
-      'match' => match.to_hash
+  def base_match_data(row)
+    {
+      'match_row' => row.to_hash,
+      'direct_match' => nil,
+      'likely_matches' => []
     }
-    return matched.push(match_data)
   end
 
-  def npi_match(source, match)
-    return false if match['npi'].length < 1
-    source['doctor']['npi'] == match['npi']
+  def store_direct_match(row, data)
+    match_record = base_match_data(row)
+    match_record['direct_match'] = data
+    direct_matches.push(match_record)
+  end
+
+  def store_possible_matches(data)
+    possible_matches.push(data)
+  end
+
+  def store_unmatched(row)
+    unmatched.push(row)
   end
 end

@@ -63,7 +63,6 @@ describe RowMatcher do
       it 'returns correctly formatted data registering a direct match' do
         expect(action['fields']).to eq(['npi'])
         expect(action['source']).to eq(source_record)
-        expect(action['match']).to eq(row.to_hash)
       end
 
       context 'with multiple matching fields' do
@@ -94,6 +93,17 @@ describe RowMatcher do
         expect(action).to eq(false)
       end
     end
+
+    context 'with nil' do
+      before(:each) do
+        fields[2] = nil
+        source_record['doctor']['npi'] = nil
+      end
+
+      it 'returns false' do
+        expect(action).to eq(false)
+      end
+    end
   end
 
   describe 'calculate_likely_match' do
@@ -108,7 +118,6 @@ describe RowMatcher do
       it 'returns correctly formatted data registering as a likely match' do
         expect(action['fields']).to eq(['first_name', 'last_name'])
         expect(action['source']).to eq(source_record)
-        expect(action['match']).to eq(row.to_hash)
       end
 
       context 'with other matching fields' do
@@ -135,7 +144,6 @@ describe RowMatcher do
         it 'returns data indicating a likely match' do
           expect(action['fields']).to eq(['first_name', 'street'])
           expect(action['source']).to eq(source_record)
-          expect(action['match']).to eq(row.to_hash)
         end
       end
 
