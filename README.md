@@ -5,6 +5,8 @@
 - Process the data in match_file.csv against the data in source_data.json
 - Try to match based on the following fields: NPI, Name (Use first and last), Address (using street, street_2, city, state and zip)
 
+![screenshot of running script](https://github.com/rrgayhart/provider-parser/blob/master/docs/demo-output.png)
+
 #### Assumptions Made: 
 
 - Source data is always a json file, and match data is always a csv file
